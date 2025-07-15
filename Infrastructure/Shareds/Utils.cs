@@ -187,5 +187,13 @@ namespace OrderService.Infrastructure.Shareds
             }
             return Guid.Empty;
         }
+
+        public static T ParseFromJsonObject<T>(object jsonObj, string field = "data")
+        {
+            var jsonData = JsonSerialize(jsonObj);
+            var responseData = JsonDeserialize<Dictionary<string, object>>(jsonData);
+            string jsonString = responseData[field].ToString();
+            return JsonConvert.DeserializeObject<T>(jsonString);
+        }
     }
 }

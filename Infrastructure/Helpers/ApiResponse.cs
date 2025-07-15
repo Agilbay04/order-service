@@ -4,7 +4,7 @@ using OrderService.Infrastructure.Dtos;
 
 namespace OrderService.Infrastructure.Helpers
 {
-    public class ErrorUtility
+    public static class ErrorUtility
     {
         public static List<IDictionary<string, string>> CreateSingleErrorValidation(string key, string field)
         {
@@ -31,13 +31,28 @@ namespace OrderService.Infrastructure.Helpers
         public string Version { get { return "1.0.0"; } }
     }
 
-    public class ApiResponseData<T>(HttpStatusCode statusCode, T data) : ApiResponse
+    public class ApiResponseData<T>(HttpStatusCode statusCode, T data = default, string message = null) : ApiResponse
     {
         [DataMember]
         public int StatusCode { get; set; } = (int)statusCode;
 
         [DataMember(EmitDefaultValue = true)]
         public T Data { get; set; } = data;
+
+        [DataMember(EmitDefaultValue = true)]
+        public string Message { get; set; } = message;
+    }
+
+    public class ApiResponseData(HttpStatusCode statusCode, object data = null, string message = null) : ApiResponse
+    {
+        [DataMember]
+        public int StatusCode { get; set; } = (int)statusCode;
+
+        [DataMember(EmitDefaultValue = true)]
+        public object Data { get; set; } = data;
+
+        [DataMember(EmitDefaultValue = true)]
+        public string Message { get; set; } = message;
     }
 
     public class ResponseDataList<T>(List<T> items, int count)

@@ -10,9 +10,12 @@ namespace OrderService.Http.API.Health
     public class HealthController
     {
         [HttpGet]
-        public ApiResponseData<object> Get()
+        public ApiResponseData Get()
         {
-            return new ApiResponseData<object>(System.Net.HttpStatusCode.OK, new { message = "Service is running, and Healty" });
+            return new ApiResponseData(
+                System.Net.HttpStatusCode.OK,
+                new { message = "Order Service is running, and Healty" }
+            );
         }
     }
 }

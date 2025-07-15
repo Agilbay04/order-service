@@ -1,5 +1,7 @@
 using OrderService.Domain.File.Services;
 using OrderService.Domain.Logging.Services;
+using OrderService.Domain.Order.Services;
+using OrderService.Domain.Product.Services;
 using OrderService.Infrastructure.Shareds;
 
 namespace OrderService
@@ -11,6 +13,8 @@ namespace OrderService
             services.AddScoped<LoggingService>();
             services.AddScoped<StorageService>();
             services.AddScoped<FileService>();
+            services.AddScoped<ServiceOrder>();
+            services.AddScoped<ProductService>();
         }
     }
 }

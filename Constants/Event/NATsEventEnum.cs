@@ -42,9 +42,11 @@ namespace OrderService.Constants.Event
         ALL = NATsEventCommon.ALL,
         LOGGER,
         AUTH,
-        USER
+        USER,
 
         // Add more module here
+        PRODUCT,
+        ORDER
     }
     
     public enum NATsEventStreamModule
