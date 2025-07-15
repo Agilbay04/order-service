@@ -1,0 +1,16 @@
+using OrderService.Domain.File.Services;
+using OrderService.Domain.Logging.Services;
+using OrderService.Infrastructure.Shareds;
+
+namespace OrderService
+{
+    public partial class Startup
+    {
+        public void Services(IServiceCollection services)
+        {
+            services.AddScoped<LoggingService>();
+            services.AddScoped<StorageService>();
+            services.AddScoped<FileService>();
+        }
+    }
+}
