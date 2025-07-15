@@ -25,7 +25,7 @@ namespace OrderService.Http.API.Version1.Products.Controllers
         }
 
         [HttpGet("ids")]
-        public async Task<ApiResponse> GetByIds([FromQuery] OrderParamDto param)
+        public async Task<ApiResponse> GetByIds([FromQuery] ProductParamDto param)
         {
             if (string.IsNullOrEmpty(param.ProductIds)) return new ApiResponseData(HttpStatusCode.BadRequest, "ProductIds is required");
             List<Guid> productIds = [.. param.ProductIds.Split(',').Select(Guid.Parse)];

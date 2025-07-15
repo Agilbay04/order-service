@@ -24,6 +24,7 @@ using OrderService.Infrastructure.Jobs;
 using OrderService.Infrastructure.Logging;
 using Microsoft.Extensions.Logging.Console;
 using OrderService.Infrastructure.Email;
+using Coravel;
 
 namespace OrderService
 {
@@ -184,6 +185,8 @@ namespace OrderService
             });
 
             services.AddSingleton<EmailService>();
+
+            services.AddQueue();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

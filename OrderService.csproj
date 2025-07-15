@@ -25,6 +25,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Coravel" Version="6.0.2" />
     <PackageReference Include="EFCore.NamingConventions" Version="8.0.3" />
     <PackageReference Include="LocalStorage" Version="2.1.0" />
     <PackageReference Include="MailKit" Version="4.9.0" />

@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using OrderService.Domain.Order.Dtos;
+using OrderService.Domain.Order.Messages;
 using OrderService.Domain.Order.Services;
 using OrderService.Domain.Product.Dtos;
 using OrderService.Infrastructure.Helpers;
@@ -16,11 +18,11 @@ namespace OrderService.Http.API.Version1.Order.Controllers
     {
         private readonly ServiceOrder _serviceOrder = serviceOrder;
 
-        [HttpGet("")]
-        public async Task<ApiResponse> GetAll([FromQuery] ProductQueryDto param)
+        [HttpPost()]
+        public async Task<ApiResponse> CreateOrder([FromBody] CreateOrderDto body)
         {
-            var listProduct = await _serviceOrder.GetAllProduct(param);
-            return new ApiResponseData(HttpStatusCode.OK, listProduct);
+            var createOrder = await _serviceOrder.CreateOrder(body);
+            return new ApiResponseData(HttpStatusCode.OK, createOrder, OrderMessage.SuccessCreateOrder(createOrder));
         }
     }
 }

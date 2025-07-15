@@ -4,12 +4,14 @@ namespace OrderService.Infrastructure.Queues {
 
     public class QueuedHostedService(
         BackgroundTaskQueue taskQueue,
-        ILoggerFactory loggerFactory
+        ILoggerFactory loggerFactory,
+        IServiceProvider serviceProvider
     ) : BackgroundService
     {
 
         private readonly BackgroundTaskQueue TaskQueue = taskQueue;
         private readonly ILogger _logger = loggerFactory.CreateLogger(LoggerConstant.ACTIVITY);
+        private readonly IServiceProvider _serviceProvider = serviceProvider;
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
@@ -30,6 +32,7 @@ namespace OrderService.Infrastructure.Queues {
 
                 try
                 {
+                    using var scope = _serviceProvider.CreateScope();
                     await workItem(stoppingToken);
                 }
                 catch (Exception ex)

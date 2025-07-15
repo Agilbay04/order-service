@@ -10,6 +10,7 @@ namespace OrderService.Domain.Product.Dtos
         public Guid Id { get; set; }
         public string Code { get; set; }
         public string Name { get; set; }
+        public string CategoryId { get; set; }
         public string CategoryKey { get; set; }
         public string CategoryName { get; set; }
         public string IsPublish { get; set; }
