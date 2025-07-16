@@ -2,6 +2,7 @@ using document_generator.Infrastructure.Helpers;
 using OrderService.Constants.Event;
 using OrderService.Constants.Logger;
 using OrderService.Domain.Product.Dtos;
+using OrderService.Domain.Product.Messages;
 using OrderService.Infrastructure.Helpers;
 using OrderService.Infrastructure.Integrations.NATs;
 using OrderService.Infrastructure.Shareds;
@@ -88,6 +89,41 @@ namespace OrderService.Domain.Product.Services
             }
 
             return listProduct;
+        }
+
+        public async Task<string> UpdateStockProductAsync(List<UpdateStockProductDto> param)
+        {
+            string message = string.Empty;
+
+            try
+            {
+                // Create subject for Get Data Product By IDs
+                string inventorySubject = _natsIntegration.Subject(
+                    NATsEventModuleEnum.PRODUCT,
+                    NATsEventActionEnum.UPDATE,
+                    NATsEventStatusEnum.REQUEST
+                );
+
+                // Publish and get reply from NATs Get Data Product By IDs
+                var invetoryReply = await _natsIntegration.PublishAndGetReply<object, object>(
+                    inventorySubject,
+                    Utils.JsonSerialize(new ApiResponseData(HttpStatusCode.OK, param))
+                );
+
+                _logger.LogInformation("Get reply Data from Invetory Service {invoiceReply}", invetoryReply);
+
+                if (invetoryReply != null)
+                {
+                    message = ProductMessage.SuccessUpdateStockProduct;
+                }
+            }
+            catch (Exception ex)
+            {
+                string errMessage = ex.Message;
+                _logger.LogError(ex, "Error reply Data from Invetory Service {errMessage}", errMessage);
+            }
+
+            return message;
         }
     }
 }

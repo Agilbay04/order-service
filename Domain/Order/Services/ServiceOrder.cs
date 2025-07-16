@@ -8,6 +8,7 @@ using OrderService.Domain.Order.Repositories;
 using OrderService.Domain.Product.Dtos;
 using OrderService.Domain.Product.Services;
 using OrderService.Infrastructure.Databases;
+using OrderService.Infrastructure.Dtos;
 using OrderService.Infrastructure.Queues;
 using OrderService.Models;
 
@@ -28,6 +29,14 @@ namespace OrderService.Domain.Order.Services
         private readonly ProductService _productService = productService;
         private readonly IServiceProvider _serviceProvider = serviceProvider;
         private readonly BackgroundTaskQueue _taskQueue = _taskQueue;
+
+        public async Task<PaginationModel<OrderResultDto>> FindAllAsync(OrderQueryDto param = null)
+        {
+            var data = await _orderRepository.PaginationAsync(param);
+            var formatedData = OrderResultDto.MapTo(data.Data);
+            var paginate = PaginationModel<OrderResultDto>.Parse(formatedData, data.Count, param);
+            return paginate;
+        }
 
         public async Task<string> CreateOrder(CreateOrderDto body)
         {
@@ -73,7 +82,14 @@ namespace OrderService.Domain.Order.Services
                     {
                         using var scope = _serviceProvider.CreateScope();
                         var scopedDbContext = scope.ServiceProvider.GetRequiredService<DataContext>();
-                        await CheckStockProduct(order.Id, body.OrderItem, listProduct, scopedDbContext);
+                        var scopedProductService = scope.ServiceProvider.GetRequiredService<ProductService>();
+                        await CheckStockProduct(
+                            order.Id,
+                            body.OrderItem,
+                            listProduct,
+                            scopedDbContext,
+                            scopedProductService
+                        );
                     });
 
                     return orderNumber;
@@ -91,7 +107,8 @@ namespace OrderService.Domain.Order.Services
             Guid OrderId,
             List<CreateOrderItemDto> orderItems,
             List<ProductResultDto> listProduct,
-            DataContext dbContext = null
+            DataContext dbContext = null,
+            ProductService productService = null
         )
         {
             await dbContext.Database.CreateExecutionStrategy().ExecuteAsync(async () =>
@@ -126,6 +143,14 @@ namespace OrderService.Domain.Order.Services
                     {
                         order.Status = OrderStatusConstant.CONFIRMED;
                         order.Remark = OrderMessage.ProcessOrderToDelivery(order.OrderNumber);
+
+                        var paramUpdateStock = orderItems.Select(o => new UpdateStockProductDto()
+                        {
+                            ProductId = o.ProductId,
+                            Qty = o.Qty
+                        }).ToList();
+                        
+                        await productService.UpdateStockProductAsync(paramUpdateStock);
                     }
 
                     await dbContext.SaveChangesAsync();
