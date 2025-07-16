@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Caching.Distributed;
 using OrderService.Domain.File.Services;
 using OrderService.Domain.Logging.Services;
 using OrderService.Domain.Order.Services;
@@ -14,6 +15,12 @@ namespace OrderService
             services.AddScoped<StorageService>();
             services.AddScoped<FileService>();
             services.AddScoped<ServiceOrder>();
+            services.AddScoped<IServiceOrder>(sp =>
+            {
+                var service = sp.GetRequiredService<ServiceOrder>();
+                var cache = sp.GetRequiredService<IDistributedCache>();
+                return new CachedServiceOrder(service, cache);
+            });
             services.AddScoped<ProductService>();
         }
     }

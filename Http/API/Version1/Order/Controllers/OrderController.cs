@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using OrderService.Domain.Order.Dtos;
 using OrderService.Domain.Order.Messages;
 using OrderService.Domain.Order.Services;
-using OrderService.Domain.Product.Dtos;
 using OrderService.Infrastructure.Helpers;
 using System.Net;
 
@@ -13,10 +12,10 @@ namespace OrderService.Http.API.Version1.Order.Controllers
     [ApiController]
     [AllowAnonymous]
     public class OrderController(
-        ServiceOrder serviceOrder 
+        IServiceOrder serviceOrder 
     ) : ControllerBase
     {
-        private readonly ServiceOrder _serviceOrder = serviceOrder;
+        private readonly IServiceOrder _serviceOrder = serviceOrder;
 
         [HttpGet()]
         public async Task<ApiResponse> Index([FromQuery] OrderQueryDto param)

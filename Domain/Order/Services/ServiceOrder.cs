@@ -1,4 +1,3 @@
-using Coravel.Queuing.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using OrderService.Constants.Logger;
 using OrderService.Domain.Order.Constants;
@@ -21,7 +20,7 @@ namespace OrderService.Domain.Order.Services
         ProductService productService,
         IServiceProvider serviceProvider,
         BackgroundTaskQueue _taskQueue
-    )
+    ) : IServiceOrder
     {
         private readonly ILogger _logger = loggerFactory.CreateLogger(LoggerConstant.ACTIVITY);
         private readonly DataContext _dbContext = dbContext;
