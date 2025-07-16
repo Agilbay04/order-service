@@ -1,3 +1,6 @@
+# ORDER SERVICE
+Service to handle product orders
+
 # Table of Content
 
 - [Pre Requisite](#pre-requisite)
@@ -43,7 +46,7 @@
 
 # Database ERD
 
-- ERD https://dbdocs.io/devops.dot/dotnet-service-boilerplate
+- ERD https://dbdocs.io/Bayu%20Agil/order-service
 
 # Important Note
 
