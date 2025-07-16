@@ -10,6 +10,7 @@ using OrderService.Infrastructure.Databases;
 using OrderService.Infrastructure.Dtos;
 using OrderService.Infrastructure.Queues;
 using OrderService.Models;
+using StackExchange.Redis;
 
 namespace OrderService.Domain.Order.Services
 {
@@ -19,7 +20,8 @@ namespace OrderService.Domain.Order.Services
         OrderRepository orderRepository,
         ProductService productService,
         IServiceProvider serviceProvider,
-        BackgroundTaskQueue _taskQueue
+        BackgroundTaskQueue _taskQueue,
+        IConnectionMultiplexer redis
     ) : IServiceOrder
     {
         private readonly ILogger _logger = loggerFactory.CreateLogger(LoggerConstant.ACTIVITY);
@@ -28,6 +30,7 @@ namespace OrderService.Domain.Order.Services
         private readonly ProductService _productService = productService;
         private readonly IServiceProvider _serviceProvider = serviceProvider;
         private readonly BackgroundTaskQueue _taskQueue = _taskQueue;
+        private readonly IConnectionMultiplexer _redis = redis;
 
         public async Task<PaginationModel<OrderResultDto>> FindAllAsync(OrderQueryDto param = null)
         {
@@ -46,7 +49,7 @@ namespace OrderService.Domain.Order.Services
                 try
                 {
                     var productIds = body.OrderItem.Select(o => o.ProductId).ToList();
-                    var orderNumber = await GenerateOrderNumber();
+                    var orderNumber = await GenerateOrderNumberRedis();
                     var listProduct = await _productService.GetProductByIds(productIds);
 
                     var order = new Models.Order()
@@ -148,7 +151,7 @@ namespace OrderService.Domain.Order.Services
                             ProductId = o.ProductId,
                             Qty = o.Qty
                         }).ToList();
-                        
+
                         await productService.UpdateStockProductAsync(paramUpdateStock);
                     }
 
@@ -183,6 +186,36 @@ namespace OrderService.Domain.Order.Services
 
                 var newSequence = lastSequence + 1;
                 var newOrderNumber = $"{prefix}{newSequence:D7}";
+
+                return newOrderNumber;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error Generate Order Number: {Message}", ex.Message);
+                throw;
+            }
+        }
+
+        private async Task<string> GenerateOrderNumberRedis()
+        {
+            try
+            {
+                var today = DateTime.Now;
+                var datepart = today.ToString("yyMMdd");
+                var prefix = $"ORD{datepart}";
+
+                var redisKey = $"order_seq:{prefix}";
+
+                var db = _redis.GetDatabase();
+
+                long sequence = await db.StringIncrementAsync(redisKey);
+
+                if (sequence == 1)
+                {
+                    await db.KeyExpireAsync(redisKey, TimeSpan.FromDays(2));
+                }
+
+                var newOrderNumber = $"{prefix}{sequence:D7}";
 
                 return newOrderNumber;
             }

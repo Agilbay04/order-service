@@ -161,6 +161,9 @@ namespace OrderService
                 services.AddDistributedMemoryCache();
             }
 
+            services.AddSingleton<IConnectionMultiplexer>(sp =>
+                ConnectionMultiplexer.Connect($"{Configuration["Redis:Host"]}:{Configuration["Redis:Port"]},password={Configuration["Redis:Password"]}"));
+
             // Quartz Scheduler
             services.AddQuartz(q =>
             {
