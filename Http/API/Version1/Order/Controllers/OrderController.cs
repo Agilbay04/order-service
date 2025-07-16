@@ -18,6 +18,13 @@ namespace OrderService.Http.API.Version1.Order.Controllers
     {
         private readonly ServiceOrder _serviceOrder = serviceOrder;
 
+        [HttpGet()]
+        public async Task<ApiResponse> Index([FromQuery] OrderQueryDto param)
+        {
+            var listOrder = await _serviceOrder.FindAllAsync(param);
+            return new ApiResponsePagination<OrderResultDto>(HttpStatusCode.OK, listOrder);
+        }
+
         [HttpPost()]
         public async Task<ApiResponse> CreateOrder([FromBody] CreateOrderDto body)
         {
