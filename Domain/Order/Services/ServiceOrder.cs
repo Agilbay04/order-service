@@ -35,12 +35,22 @@ namespace OrderService.Domain.Order.Services
         public async Task<PaginationModel<OrderResultDto>> FindAllAsync(OrderQueryDto param = null)
         {
             var data = await _orderRepository.PaginationAsync(param);
-            var formatedData = OrderResultDto.MapTo(data.Data);
+            var formatedData = OrderResultDto.MapTo(data.Data, param);
             var paginate = PaginationModel<OrderResultDto>.Parse(formatedData, data.Count, param);
             return paginate;
         }
 
-        public async Task<string> CreateOrder(CreateOrderDto body)
+        public async Task<PaginationModel<OrderDetailResultDto>> FindOrderDetailAsync(Guid id, ProductQueryDto param = null)
+        {
+            var listProduct = await _orderRepository.PaginationAsync(id, param);
+            var productIds = listProduct?.Data?.Select(o => o.ProductId).ToList();
+            var data = await _productService.GetProductByIds(productIds);
+            var formatedData = OrderResultDto.MapToDetails(listProduct?.Data, data);
+            var paginate = PaginationModel<OrderDetailResultDto>.Parse(formatedData, listProduct.Count, param);
+            return paginate;
+        }
+
+        public async Task<string> CreateOrderAsync(CreateOrderDto body)
         {
             return await _dbContext.Database.CreateExecutionStrategy().ExecuteAsync(async () =>
             {
